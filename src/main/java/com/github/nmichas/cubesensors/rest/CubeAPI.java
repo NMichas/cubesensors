@@ -1,6 +1,6 @@
 package com.github.nmichas.cubesensors.rest;
 
-import com.github.nmichas.cubesensors.dto.DataDTO;
+import com.github.nmichas.cubesensors.dto.DataAlignedDTO;
 import com.github.nmichas.cubesensors.dto.SensorDTO;
 import com.github.nmichas.cubesensors.services.DataService;
 import org.springframework.http.MediaType;
@@ -27,7 +27,9 @@ public class CubeAPI {
   }
 
   @PostMapping(value = "/v1/devices/{baseStationId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-  public void device(@PathVariable String baseStationId, @RequestBody SensorDTO sensorDTO) throws IOException {
+  public void devices(@PathVariable String baseStationId, @RequestBody SensorDTO sensorDTO) throws IOException {
+    LOGGER.log(Level.INFO, "Intercepted: [POST] /v1/devices/{0}.", baseStationId);
+    LOGGER.log(Level.INFO, sensorDTO.toString());
     String updateReply = updateService.updateOrigin(baseStationId, sensorDTO);
     LOGGER.log(Level.INFO, updateReply);
 
@@ -36,13 +38,15 @@ public class CubeAPI {
 
   @GetMapping(value = "/v1/devices/{baseStationId}", produces = MediaType.APPLICATION_JSON_VALUE)
   public String devices(@PathVariable String baseStationId) throws URISyntaxException, IOException {
+    LOGGER.log(Level.INFO, "Intercepted: [GET] /v1/devices/{0}.", baseStationId);
     String getReply = updateService.getDevices(baseStationId);
+    LOGGER.log(Level.INFO, getReply);
 
     return getReply;
   }
 
   @GetMapping(value = "/data/{cube}")
-  private DataDTO data(@PathVariable String cube){
+  private DataAlignedDTO data(@PathVariable String cube){
     return updateService.getLocal(cube);
   }
 }
