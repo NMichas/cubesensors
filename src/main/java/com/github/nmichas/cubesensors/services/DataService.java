@@ -61,6 +61,10 @@ public class DataService {
     LOGGER.log(Level.INFO, "Requested data for cube: {0}.", cube);
 
     DataDTO c = data.get(cube);
+    if (c == null) {
+      LOGGER.log(Level.WARNING, "Requested data for cube {0}, however this server never received any.", cube);
+      return null;
+    }
     LOGGER.log(Level.INFO, "{0}: Original: {1}", new Object[]{cube, c});
 
     DecimalFormat df = new DecimalFormat("#.##");
