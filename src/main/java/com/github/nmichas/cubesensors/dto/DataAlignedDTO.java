@@ -22,4 +22,5 @@ public class DataAlignedDTO {
   private double temp;
   private double voc;
   private long voc_resistance;
+  private boolean error;
 }

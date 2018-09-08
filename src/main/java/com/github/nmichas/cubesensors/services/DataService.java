@@ -60,35 +60,39 @@ public class DataService {
   public DataAlignedDTO getLocal(String cube) {
     LOGGER.log(Level.INFO, "Requested data for cube: {0}.", cube);
 
+    // Get local data for the requested cube.
     DataDTO c = data.get(cube);
+
     if (c == null) {
       LOGGER.log(Level.WARNING, "Requested data for cube {0}, however this server never received any.", cube);
-      return null;
+      return DataAlignedDTO.builder().error(true).build();
+    } else {
+      LOGGER.log(Level.INFO, "{0}: Original: {1}", new Object[]{cube, c});
+
+      DecimalFormat df = new DecimalFormat("#.##");
+      df.setRoundingMode(RoundingMode.CEILING);
+
+      DataAlignedDTO dataAlignedDTO = DataAlignedDTO.builder()
+          .error(false)
+          .battery(c.getBattery())
+          .charging(c.getCharging() == 3 ? true : false)
+          .cube(c.getCube())
+          .firmware(c.getFirmware())
+          .humidity(Double.valueOf(df.format(c.getHumidity() / 100.0)))
+          .light(Double.valueOf(df.format(10 / 6.0 * (1 + (c.getLight() / 1024.0) * 4.787 * Math
+              .exp(-(Math.pow((c.getLight() - 2048) / 400.0 + 1, 2) / 50.0))) * (102400.0 / Math.max(15, c.getLight())
+              - 25))))
+          .noisedba(c.getNoisedba())
+          .pressure(c.getPressure())
+          .rssi(c.getRssi())
+          .temp(Double.valueOf(df.format(c.getTemp() / 100.0)))
+          .voc(Double.valueOf(df.format(Math.max(c.getVoc() - 900, 0) * 0.4 + Math.min(c.getVoc(), 900))))
+          .voc_resistance(c.getVoc_resistance())
+          .build();
+      LOGGER.log(Level.INFO, "{0}: Aligned: {1}", new Object[]{cube, dataAlignedDTO});
+
+      return dataAlignedDTO;
     }
-    LOGGER.log(Level.INFO, "{0}: Original: {1}", new Object[]{cube, c});
-
-    DecimalFormat df = new DecimalFormat("#.##");
-    df.setRoundingMode(RoundingMode.CEILING);
-
-    DataAlignedDTO dataAlignedDTO = DataAlignedDTO.builder()
-        .battery(c.getBattery())
-        .charging(c.getCharging() == 3 ? true : false)
-        .cube(c.getCube())
-        .firmware(c.getFirmware())
-        .humidity(Double.valueOf(df.format(c.getHumidity() / 100.0)))
-        .light(Double.valueOf(df.format(10 / 6.0 * (1 + (c.getLight() / 1024.0) * 4.787 * Math
-            .exp(-(Math.pow((c.getLight() - 2048) / 400.0 + 1, 2) / 50.0))) * (102400.0 / Math.max(15, c.getLight())
-            - 25))))
-        .noisedba(c.getNoisedba())
-        .pressure(c.getPressure())
-        .rssi(c.getRssi())
-        .temp(Double.valueOf(df.format(c.getTemp() / 100.0)))
-        .voc(Double.valueOf(df.format(Math.max(c.getVoc() - 900, 0) * 0.4 + Math.min(c.getVoc(), 900))))
-        .voc_resistance(c.getVoc_resistance())
-        .build();
-    LOGGER.log(Level.INFO, "{0}: Aligned: {1}", new Object[]{cube, dataAlignedDTO});
-
-    return dataAlignedDTO;
   }
 
   /**
@@ -106,7 +110,10 @@ public class DataService {
         .build();
     Response response = client.newCall(request).execute();
 
-    return response.body().string();
+    String devicesInfo = response.body().string();
+    LOGGER.log(Level.INFO, "Requested devices info: {0}.", devicesInfo);
+
+    return devicesInfo;
   }
 
 }
