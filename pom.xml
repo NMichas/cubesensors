@@ -6,7 +6,7 @@
 
   <groupId>com.github.nmichas.cubesensors</groupId>
   <artifactId>cubesensors</artifactId>
-  <version>1.0.6</version>
+  <version>1.0.7</version>
 
   <properties>
     <spring.boot.version>2.1.8.RELEASE</spring.boot.version>
