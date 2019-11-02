@@ -62,3 +62,51 @@ you need to know (and replace below) the IDs of your cubes.
     Number      Foo_CS_Voc              {http="<[cubesensorsFoo:60000:JSONPATH($.voc)]"}
 
     ```
+## Home Assistant support
+If you're using Home Assistant, here is how you can add the sensors in your `configuration.yaml`. Be aware that
+you need to know (and replace below) the IDs of your cubes.
+
+* Define the sensor(s):
+    ```
+    sensor:
+      - platform: rest
+        name: cubesensor_bedroom
+        resource: http://SERVER-IP/data/XXXXXXXXXXXX
+        json_attributes:
+          - humidity
+          - light
+          - noisedba
+          - pressure
+          - temp
+          - voc
+        value_template: 'OK'
+    ```
+* Define templates from sensors:
+    ```
+    - platform: template
+        sensors:     
+          cubesensor_bedroom_humidity:
+            friendly_name: Bedroom Humidity
+            value_template: '{{ states.sensor.cubesensor_bedroom.attributes["humidity"] }}'
+            device_class: humidity
+            unit_of_measurement: '%'
+          cubesensor_bedroom_light:
+            friendly_name: Bedroom Light
+            value_template: '{{ states.sensor.cubesensor_bedroom.attributes["light"] }}'
+            device_class: illuminance
+            unit_of_measurement: 'lx'
+          cubesensor_bedroom_noise:
+            friendly_name: Bedroom Noise
+            value_template: '{{ states.sensor.cubesensor_bedroom.attributes["noisedba"] }}'        
+            unit_of_measurement: 'dbA'
+          cubesensor_bedroom_pressure:
+            friendly_name: Bedroom Pressure
+            value_template: '{{ states.sensor.cubesensor_bedroom.attributes["pressure"] }}'
+            device_class: pressure
+            unit_of_measurement: 'mbar'
+          cubesensor_bedroom_temperature:
+            friendly_name: Bedroom Temperature
+            value_template: '{{ states.sensor.cubesensor_bedroom.attributes["temp"] }}'
+            device_class: temperature
+            unit_of_measurement: '°C'
+    ```
